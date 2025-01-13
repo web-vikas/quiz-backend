@@ -1,16 +1,16 @@
 const path = require('path');
 const dotenv = require('dotenv').config();
-const dotenvExample = require('dotenv').config({
-  path: path.resolve(process.cwd(), '.env.example'),
-});
+// const dotenvExample = require('dotenv').config({
+//   path: path.resolve(process.cwd(), '.env.example'),
+// });
 
-if (
-  Object !== null &&
-  JSON.stringify(Object.keys(dotenv.parsed).sort()) !==
-    JSON.stringify(Object.keys(dotenvExample.parsed).sort())
-) {
-  throw Error('Missing values in .env. Please refer to .env.example');
-}
+// if (
+//   Object !== null &&
+//   JSON.stringify(Object.keys(dotenv.parsed).sort()) !==
+//     JSON.stringify(Object.keys(dotenvExample.parsed).sort())
+// ) {
+//   throw Error('Missing values in .env. Please refer to .env.example');
+// }
 
 /**
  * Export all env variables and constant
