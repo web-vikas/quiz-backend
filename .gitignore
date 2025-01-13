@@ -1,0 +1,21 @@
+
+# Env
+.env
+.env.local
+.env.production
+# node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Migration
+db-dump/*
+# Public
+public/images/*
+
+# Except for this file
+!db-dump/index.js
+!public/images/index.js
+
+
+.DS_Store
