@@ -6,6 +6,7 @@
 
 ## Folder Structure
 
+
 - Add all image, assets, json files and other public files to _public_ folder.
 - _db-dump_ stores the db backup on migration.
 - _config_ directory contains all the env, express, mongoose, socket and swagger configs.
