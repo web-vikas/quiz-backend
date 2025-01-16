@@ -9,7 +9,7 @@ const router = express.Router();
 router.get('/', (req, res) => healthCheckAPIResponse(res));
 router.get('/health-check', (req, res) => healthCheckAPIResponse(res));
 router.use('/auth', require('./auth'));
-router.use(VerifyToken);
+// router.use(VerifyToken);
 
 router.get('/health-check-protected', (req, res) =>
   healthCheckAPIResponse(res),
