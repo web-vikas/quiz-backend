@@ -9,7 +9,12 @@ const router = express.Router();
 router.get('/', (req, res) => healthCheckAPIResponse(res));
 router.get('/health-check', (req, res) => healthCheckAPIResponse(res));
 router.use('/auth', require('./auth'));
-// router.use(VerifyToken);
+
+/**
+ * Protected APIs
+*/
+router.use(VerifyToken);
+router.use('/quiz', require('./quiz'));
 
 router.get('/health-check-protected', (req, res) =>
   healthCheckAPIResponse(res),

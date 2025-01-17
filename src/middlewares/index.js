@@ -1,8 +1,8 @@
 const jwt = require('jsonwebtoken');
-const {env} = require('../config');
-const {FindOne} = require('../controllers/baseController');
-const {Handle500Error, Handle401Error} = require('../helpers');
-const {User, Store} = require('../models');
+const { env } = require('../config');
+const { FindOne } = require('../controllers/baseController');
+const { Handle500Error, Handle401Error } = require('../helpers');
+const { User, Store } = require('../models');
 
 // VerifyToken Middleware
 const VerifyToken = async (req, res, next) => {
@@ -25,21 +25,13 @@ const VerifyToken = async (req, res, next) => {
 
       const user = await FindOne({
         model: User,
-        where: {_id: decodedUser.id},
+        where: { _id: decodedUser.id },
       });
 
       if (!user) {
         return Handle401Error(res);
       }
 
-      const store = await FindOne({
-        model: Store,
-        where: {user: decodedUser.id},
-      });
-
-      if (store) {
-        user.store = store;
-      }
 
       req.user = user;
 
