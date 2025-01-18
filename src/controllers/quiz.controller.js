@@ -1,6 +1,6 @@
 const { Handle500Error, Handle400Error, Handle200Response } = require("../helpers");
 const { Quiz, Question, QuizAttempt } = require("../models");
-const { Insert, Find, FindOne, ObjectId } = require("./baseController");
+const { Insert, Find, FindOne, ObjectId, FindAndUpdate } = require("./baseController");
 const mongoose = require('mongoose')
 module.exports = {
     CreateQuiz: async (req, res, next) => {
@@ -29,7 +29,13 @@ module.exports = {
             const user = req.user
             const quizzes = await Find({
                 model: Quiz,
-                where: { user: user?._id },
+                where: {
+                    user: user?._id,
+                    status: { $ne: 'deleted' }
+                },
+                sort: {
+                    createdAt: -1,
+                }
             })
 
             Handle200Response(res, { message: 'Quiz fetched successfully.', data: quizzes });
@@ -105,7 +111,7 @@ module.exports = {
             }
             const questions = await Find({
                 model: Question,
-                where: { quizid: quizId },
+                where: { quizid: quizId, status: { $ne: 'deleted' } },
             });
 
             Handle200Response(res, { message: 'Questions fetched successfully.', data: questions });
@@ -128,7 +134,7 @@ module.exports = {
             }
             const questions = await Find({
                 model: Question,
-                where: { quizid: quizId },
+                where: { quizid: quizId, status: { $ne: 'deleted' } },
                 select: "question_name option_a option_b option_c option_d"
             });
             quiz.questions = questions
@@ -226,6 +232,54 @@ module.exports = {
                 message: 'Quiz submitted successfully.',
                 data: result
             });
+        } catch (error) {
+            Handle500Error(error, req, res, next);
+        }
+    },
+    DeleteQuiz: async (req, res, next) => {
+        try {
+            const { id } = req.params
+            if (!id) return Handle400Error(res, "Please Send Quiz Id.")
+            const quiz = await FindOne({
+                model: Quiz,
+                where: { _id: ObjectId(id) },
+            });
+            if (!quiz) return Handle400Error(res, "Please enter a valid Quiz id ")
+
+            const deleteQuiz = await FindAndUpdate({
+                model: Quiz,
+                where: { _id: id },
+                update: {
+                    $set: { status: 'deleted' },
+                }
+            });
+            if (!deleteQuiz)
+                return Handle400Error(res, 'Failed to delete quiz!')
+            return Handle200Response(res, { message: 'Quiz deleted successfully.' });
+        } catch (error) {
+            Handle500Error(error, req, res, next);
+        }
+    },
+    DeleteQuestion: async (req, res, next) => {
+        try {
+            const { id } = req.params
+            if (!id) return Handle400Error(res, "Please Send Question Id.")
+            const question = await FindOne({
+                model: Question,
+                where: { _id: ObjectId(id) },
+            });
+            if (!question) return Handle400Error(res, "Please enter a valid Question id ")
+            const deleteQuestion = await FindAndUpdate({
+                model: Question,
+                where: { _id: id },
+                update: {
+                    $set: { status: 'deleted' },
+                }
+            });
+            if (!deleteQuestion)
+                return Handle400Error(res, 'Failed to delete question!')
+            return Handle200Response(res, { message: 'Question deleted successfully.' });
+
         } catch (error) {
             Handle500Error(error, req, res, next);
         }
