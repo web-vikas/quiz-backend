@@ -11,7 +11,7 @@ router.post('/add-question', Auth.CreateQuestion);
 router.get('/quiz/:QuizId', Auth.getQuizByQuizId);
 router.get('/question/:QuestionId', Auth.getQuestionByQuestionId);
 router.get('/question/:QuestionId', Auth.getQuestionByQuestionId);
-router.get('/storage', Auth.CreateStorage);
+router.post('/storage', Auth.CreateStorage);
 
 
 module.exports = router;
