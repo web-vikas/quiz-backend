@@ -14,6 +14,7 @@ const {
   FindOne,
   Insert,
   ObjectId,
+  Find,
 } = require('./baseController');
 const { User, Quiz, Question, Storage } = require('../models');
 // const {response} = require('../config/express');
@@ -249,4 +250,21 @@ module.exports = {
       Handle500Error(error, req, res, next);
     }
   },
-};
+  getStorageItemById: async (req, res, next) => {
+    try {
+
+      const { id } = req.params;
+
+      const data = await FindOne({
+        model: Storage,
+        where: { file_id: id }
+      })
+
+      if (!data) return Handle400Error(res, 'Storage item not found');
+      return Handle200Response(res, data);
+    } catch (error) {
+      Handle500Error(error, req, res, next);
+    }
+
+  }
+}
