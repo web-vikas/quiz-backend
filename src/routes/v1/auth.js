@@ -1,5 +1,5 @@
 const express = require('express');
-const {Auth} = require('../../controllers');
+const { Auth } = require('../../controllers');
 
 const router = express.Router();
 
@@ -10,6 +10,8 @@ router.post('/add-question', Auth.CreateQuestion);
 
 router.get('/quiz/:QuizId', Auth.getQuizByQuizId);
 router.get('/question/:QuestionId', Auth.getQuestionByQuestionId);
+router.get('/question/:QuestionId', Auth.getQuestionByQuestionId);
+router.get('/storage', Auth.CreateStorage);
 
 
 module.exports = router;

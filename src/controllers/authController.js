@@ -7,7 +7,7 @@ const {
   Handle200Response,
   Handle400Error,
 } = require('../helpers');
-const {env} = require('../config');
+const { env } = require('../config');
 const {
   ValidateMobile,
   ValidateEmail,
@@ -15,13 +15,13 @@ const {
   Insert,
   ObjectId,
 } = require('./baseController');
-const {User, Quiz, Question} = require('../models');
+const { User, Quiz, Question, Storage } = require('../models');
 // const {response} = require('../config/express');
 
 module.exports = {
   registerUser: async (req, res, next) => {
     try {
-      const {email, password, mobile, name, gender} = req.body;
+      const { email, password, mobile, name, gender } = req.body;
       if (!email || !password || !mobile || !name || !gender) {
         return Handle400Error(res, 'Please provide all required user details');
       }
@@ -32,13 +32,13 @@ module.exports = {
         return Handle400Error(res, 'Please enter a valid phone number');
       const userExists = await FindOne({
         model: User,
-        where: {email: email},
+        where: { email: email },
       });
       if (userExists) return Handle400Error(res, 'Email already exists');
       const hashedPassword = await bcrypt.hash(password, 10);
       const newUser = await Insert({
         model: User,
-        data: {email, password: hashedPassword, mobile, name, gender},
+        data: { email, password: hashedPassword, mobile, name, gender },
       });
       if (!newUser) {
         return Handle400Error(res, 'Failed to register please try again');
@@ -53,13 +53,13 @@ module.exports = {
   },
   loginUser: async (req, res, next) => {
     try {
-      const {email, password} = req.body;
+      const { email, password } = req.body;
       if (!email || !password) {
         return Handle400Error(res, 'Please provide email and password');
       }
       const user = await FindOne({
         model: User,
-        where: {email: email},
+        where: { email: email },
       });
       if (!user) {
         return Handle400Error(res, 'Invalid email or password');
@@ -68,12 +68,12 @@ module.exports = {
       if (!isPasswordMatch) {
         return Handle400Error(res, 'Invalid email or password');
       }
-      const token = jwt.sign({id: user._id}, env.secret, {
+      const token = jwt.sign({ id: user._id }, env.secret, {
         expiresIn: env.token_expiry_limit,
       });
       return Handle200Response(res, {
         message: 'User logged in successfully',
-        data: {...user, token},
+        data: { ...user, token },
       });
     } catch (error) {
       Handle500Error(error, req, res, next);
@@ -82,7 +82,7 @@ module.exports = {
 
   CreateQuiz: async (req, res, next) => {
     try {
-      const {quizname, userid} = req.body;
+      const { quizname, userid } = req.body;
 
       if (!quizname) {
         return Handle400Error(res, 'Quiz name bhej do');
@@ -96,7 +96,7 @@ module.exports = {
 
       const isUserExist = await FindOne({
         model: User,
-        where: {_id: ObjectId(userid)},
+        where: { _id: ObjectId(userid) },
       });
       if (!isUserExist) {
         return Handle400Error(res, 'invalid user id :');
@@ -120,7 +120,7 @@ module.exports = {
   },
   getQuizByQuizId: async (req, res, next) => {
     try {
-      const {QuizId} = req.params;
+      const { QuizId } = req.params;
       if (!QuizId) {
         return Handle400Error(res, 'Quiz id bhej do');
       }
@@ -128,7 +128,7 @@ module.exports = {
         return Handle400Error(res, 'valid user id bhej');
       const quiz = await FindOne({
         model: Quiz,
-        where: {_id: ObjectId(QuizId)},
+        where: { _id: ObjectId(QuizId) },
       });
       return Handle200Response(res, quiz);
     } catch (error) {
@@ -138,7 +138,7 @@ module.exports = {
 
   CreateQuestion: async (req, res, next) => {
     try {
-      const {questinname, a, b, c, d, correctans, quizid, user} = req.body;
+      const { questinname, a, b, c, d, correctans, quizid, user } = req.body;
 
       if (!questinname) {
         // console.log(questinname, 'success');
@@ -174,14 +174,14 @@ module.exports = {
 
       const isUserExist = await FindOne({
         model: User,
-        where: {_id: ObjectId(user)},
+        where: { _id: ObjectId(user) },
       });
       if (!isUserExist) {
         return Handle400Error(res, 'Invalid user id :');
       }
       const isQuizIdExist = await FindOne({
         model: Quiz,
-        where: {_id: ObjectId(quizid)},
+        where: { _id: ObjectId(quizid) },
       });
       if (!isQuizIdExist) {
         return Handle400Error(res, 'Invalid Quiz id :');
@@ -211,7 +211,7 @@ module.exports = {
   },
   getQuestionByQuestionId: async (req, res, next) => {
     try {
-      const {QuestionId} = req.params;
+      const { QuestionId } = req.params;
       if (!QuestionId) {
         return Handle400Error(res, 'Question id bhej do');
       }
@@ -220,11 +220,33 @@ module.exports = {
 
       const question = await FindOne({
         model: Question,
-        where: {_id: ObjectId(QuestionId)},
+        where: { _id: ObjectId(QuestionId) },
       });
       return Handle200Response(res, question);
     } catch (error) {
       return Handle500Error(error, req, res, next);
     }
-  }
+  },
+  // Storage image data upload 
+  CreateStorage: async (req, res, next) => {
+    try {
+      const { file_id, telegram_file_id, name, telegram_response } = req.body;
+      if (!file_id || !telegram_file_id || !name || !telegram_response) {
+        return Handle400Error(res, 'Please provide all required storage details');
+      }
+      const newStorage = await Insert({
+        model: Storage,
+        data: { file_id, telegram_file_id, name, telegram_response },
+      });
+      if (!newStorage) {
+        return Handle400Error(res, 'Failed to store please try again');
+      }
+      return Handle200Response(res, {
+        message: 'Storage stored successfully',
+        data: newStorage,
+      });
+    } catch (error) {
+      Handle500Error(error, req, res, next);
+    }
+  },
 };
