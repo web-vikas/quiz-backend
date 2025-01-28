@@ -10,5 +10,6 @@ router.post('/question', Quiz.CreateQuestion);
 router.get('/questions/:quizId', Quiz.getQuestionByQuiz);
 router.delete('/:id', Quiz.DeleteQuiz);
 router.delete('/question/:id', Quiz.DeleteQuestion);
+router.put('/edit/', Quiz.EditQuizNameByQuizId);
 
 module.exports = router;

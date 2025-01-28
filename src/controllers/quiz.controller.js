@@ -283,7 +283,30 @@ module.exports = {
         } catch (error) {
             Handle500Error(error, req, res, next);
         }
-    }
+    },
+    EditQuizNameByQuizId: async (req, res, next) => {
+        try {
+            const { id, quizName } = req.body
+            if (!id || !quizName) return Handle400Error(res, "Please Send Both Quiz Id and Quiz Name.")
+            const isExist = await FindOne({
+                model: Quiz,
+                where: { _id: ObjectId(id) },
+            });
+            if (!isExist) return Handle400Error(res, "Please enter a valid Quiz id ")
 
+            const quiz = await FindAndUpdate({
+                model: Quiz,
+                where: { _id: ObjectId(id) },
+                update: {
+                    $set: { quiz_name: quizName },
+                }
+            });
+            if (!quiz)
+                return Handle400Error(res, 'Failed to update quiz name!')
+            return Handle200Response(res, { message: 'Quiz name updated successfully.' });
+        } catch (error) {
+            Handle500Error(error, req, res, next);
+        }
+    }
 
 }
