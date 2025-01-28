@@ -1,7 +1,7 @@
 {
   "version": 2,
   "functions": {
-    "api/*.js": {
+    "api/routes/v1/quiz.js": {
       "maxDuration": 25
     }
   },
