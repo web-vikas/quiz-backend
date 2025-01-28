@@ -1,7 +1,7 @@
 const { GEMINI_API_KEY } = require("../config/env");
 const { Handle500Error, Handle400Error, Handle200Response } = require("../helpers");
 const { Quiz, Question, QuizAttempt } = require("../models");
-const { Insert, Find, FindOne, ObjectId, FindAndUpdate } = require("./baseController");
+const { Insert, Find, FindOne, ObjectId, FindAndUpdate, InsertMany } = require("./baseController");
 const {
     GoogleGenerativeAI,
     HarmCategory,
@@ -352,7 +352,50 @@ module.exports = {
         } catch (error) {
             Handle500Error(error, req, res, next);
         }
-    }
+    },
+    InsertMultipleQuestions: async (req, res, next) => {
+        try {
+            const user = req.user
+            const { questions, quizId } = req.body;
+
+            if (!quizId) {
+                return Handle400Error(res, 'All fields are required');
+            }
+
+            if (!mongoose.Types.ObjectId.isValid(quizId))
+                return Handle400Error(res, 'Please Enter A Valid Quiz ID');
+
+
+            const isQuizIdExist = await FindOne({
+                model: Quiz,
+                where: { _id: ObjectId(quizId) },
+            });
+            if (!isQuizIdExist) {
+                return Handle400Error(res, 'Invalid Quiz id :');
+            }
+            const insertQuestion = await InsertMany({
+                model: Question,
+                data: questions.map(q => ({
+                    question_name: q.question_name,
+                    option_a: q.option_a,
+                    option_b: q.option_b,
+                    option_c: q.option_c,
+                    option_d: q.option_d,
+                    correct_answer: q.correct_answer,
+                    user: user?._id,
+                    quizid: quizId,
+                }))
+            });
+
+
+            if (!insertQuestion) {
+                return Handle400Error(res, 'Failed to insert !');
+            }
+            return Handle200Response(res, insertQuestion);
+        } catch (error) {
+            Handle500Error(error, req, res, next);
+        }
+    },
 
 
 }
