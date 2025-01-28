@@ -1,6 +1,12 @@
+const { GEMINI_API_KEY } = require("../config/env");
 const { Handle500Error, Handle400Error, Handle200Response } = require("../helpers");
 const { Quiz, Question, QuizAttempt } = require("../models");
 const { Insert, Find, FindOne, ObjectId, FindAndUpdate } = require("./baseController");
+const {
+    GoogleGenerativeAI,
+    HarmCategory,
+    HarmBlockThreshold,
+} = require("@google/generative-ai");
 const mongoose = require('mongoose')
 module.exports = {
     CreateQuiz: async (req, res, next) => {
@@ -307,6 +313,46 @@ module.exports = {
         } catch (error) {
             Handle500Error(error, req, res, next);
         }
+    },
+    GenerateQuestion: async function (req, res, next) {
+        try {
+            const { quizTopic, numberOfQuestions, difficulty, language } = req.body
+            if (!quizTopic)
+                return Handle400Error(res, "Please provide quiz topic.")
+            if (!numberOfQuestions)
+                return Handle400Error(res, "Please provide number of questions.")
+            if (!difficulty)
+                return Handle400Error(res, "Please provide difficulty level.")
+            if (!language)
+                return Handle400Error(res, "Please provide language.")
+            const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+            const model = genAI.getGenerativeModel({
+                model: "gemini-2.0-flash-exp",
+                systemInstruction: "You are a quiz generator bot . you need to generate quiz about the topic user provide and number of question that user want. \n .\nhere is a formatted quiz example --\n\n[\n{\n\n  \"question_name\": \"what is javascript\",\n  \"option_a\": \"programming language\",\n  \"option_b\": \"scripting language\",\n  \"option_c\": \"markup language\",\n  \"option_d\": \"high level language\",\n  \"correct_answer\": \"b\",\n\n}\n\n]\n\n",
+            });
+
+            const generationConfig = {
+                temperature: 1,
+                topP: 0.95,
+                topK: 40,
+                maxOutputTokens: 2000,
+                responseMimeType: "application/json",
+            };
+
+            const chatSession = model.startChat({
+                generationConfig,
+            });
+
+            const result = await chatSession.sendMessage(`GENERATE A QUIZ ABOUT ${quizTopic} WITH ${numberOfQuestions} QUESTIONS AND ${difficulty} DIFFICULTY LEVEL , USE ${language} LANGUAGE AS MUCH AS POSSIBLE`);
+
+            const finalRes = JSON.parse(result.response.text())
+
+            return Handle200Response(res, finalRes)
+
+        } catch (error) {
+            Handle500Error(error, req, res, next);
+        }
     }
+
 
 }

@@ -20,6 +20,7 @@ const dotenv = require('dotenv').config();
 module.exports = {
   port: Number(process.env['PORT']),
   mongodb: process.env['MONGO_CONNECTION_STRING'],
+  GEMINI_API_KEY: process.env['GEMINI_API_KEY'],
   db_name: process.env['MONGO_DB_NAME'],
   secret: process.env['JWT_SECRET'],
   env: process.env['NODE_ENV'],
