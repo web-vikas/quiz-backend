@@ -1,4 +1,4 @@
-const { env, mongoose, app } = require('./config');
+const { env, mongoose, app } = require('./api/config');
 
 /**
  * Connect Mongoose and start server
