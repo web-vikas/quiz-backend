@@ -1,16 +1,22 @@
 {
   "version": 2,
-  "functions": {
-    "api/routes/v1/quiz.js": {
-      "maxDuration": 25
-    }
-  },
-  "rewrites": [
+  "builds": [
     {
-      "source": "/(.*)",
-      "destination": "/api/index.js"
+      "src": "app/index.js",
+      "use": "@vercel/node"
     }
   ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "app/index.js"
+    }
+  ],
+  "functions": {
+    "app/index.js": {
+      "maxDuration": 30
+    }
+  },
   "headers": [
     {
       "source": "/(.*)",
