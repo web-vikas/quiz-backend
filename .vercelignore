@@ -1,4 +1,19 @@
+
+# Ignore all files except the main entry point
 app/routes/**
 app/controllers/**
 app/models/**
 app/middlewares/**
+app/helpers/**
+app/services/**
+app/config/**
+*.js
+!app/index.js
+
+# Ignore common files
+node_modules/
+.env*
+.git/
+*.log
+*.md
+public/
